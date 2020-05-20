@@ -5,10 +5,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from os.path import join
 from matplotlib.dates import DateFormatter
-import settings as config
 
 
-def sleep_counting():
+def sleep_counting(config):
 
     def _sleepscan(a):
         bins = int(sleep_period / original_bin_size)

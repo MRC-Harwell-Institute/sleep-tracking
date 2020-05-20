@@ -3,6 +3,7 @@ Settings.py: Put the settings here fo rthe other scripts to use
 """
 
 from pathlib import Path
+import pandas as pd
 ##################################################
 # Where to store the output
 outdir = Path(r'/home/neil/Desktop/t/sleep_test')
@@ -26,15 +27,13 @@ sleep_period = 40
 time_bin_for_mean_sleep_bout_calculation_mins = 30
 
 # The range of time to analyze. Below is one day example
-time_start = "2017-03-16 11:00:00"
-time_end = "2017-03-23 11:00:00"
+time_start = pd.to_datetime("2017-03-16 11:00:00").tz_localize('UTC')
+time_end = pd.to_datetime("2017-03-23 11:00:00").tz_localize('UTC')
 
 
 # debugging
 # time_start = "2017-02-22 12:43:00"  # lights on -> day 1. 12hr -> day1 lights off
 # time_end = "2017-02-24 12:43:00"
-
-
 
 
 # Columns that should not be analysed

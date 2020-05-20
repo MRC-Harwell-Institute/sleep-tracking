@@ -3,7 +3,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from os.path import join
 import os
-import settings as config
 import numpy as np
 sns.set(style="white")
 sns.set_context("poster")
@@ -44,23 +43,25 @@ def sleepscan(a):
     return y.astype(int)  # if numerical output is required
 
 
-df = config.df
+def run():
 
-# identify the 40s sleep bouts at each 10s timestam if there has bee >=4 zero values,
-# add a 1 in the activity column
-df[config.columns_to_use].apply(sleepscan)
+    df = config.df
 
-df_sleep = pd.DataFrame(df[config.columns_to_use].apply(sleepscan))
+    # identify the 40s sleep bouts at each 10s timestam if there has bee >=4 zero values,
+    # add a 1 in the activity column
+    df[config.columns_to_use].apply(sleepscan)
 
-df_cum_sleep = df_sleep.applymap(sleep_count)
+    df_sleep = pd.DataFrame(df[config.columns_to_use].apply(sleepscan))
 
-for detector in config.columns_to_use:
-    sleep = 0 - (df_cum_sleep[detector] / df_cum_sleep[detector].max())
+    df_cum_sleep = df_sleep.applymap(sleep_count)
 
-    activity = (df[detector] / df[detector].max())
+    for detector in config.columns_to_use:
+        sleep = 0 - (df_cum_sleep[detector] / df_cum_sleep[detector].max())
 
-    new_df = pd.DataFrame.from_dict({'activity': activity, 'sleep': sleep, 'LDR': df.LDR})
+        activity = (df[detector] / df[detector].max())
 
-    plot_sleep(new_df, detector)
+        new_df = pd.DataFrame.from_dict({'activity': activity, 'sleep': sleep, 'LDR': df.LDR})
 
-print('finished')
+        plot_sleep(new_df, detector)
+
+    print('finished')

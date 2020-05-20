@@ -1,34 +1,50 @@
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
-from datetime import datetime
-import settings as config
 from collections import OrderedDict
 import numpy as np
 sns.set(style="white")
 sns.set_context("poster")
 from os.path import join
 import os
-import re
-
-data_path = config.data_abs_path
-sleep_period = config.sleep_period
-original_bin_size = config.original_bin_size
-time_start = config.time_start
-time_end = config.time_end
-
-columns_to_remove = config.columns_to_remove
-columns_to_use = config.columns_to_use
 
 
-def sleepscan(a):
-    binsize = int(sleep_period / original_bin_size)
-    ss = a.rolling(binsize).sum()
-    y = ss == 0
-    return y.astype(int)  # if numerical output is required
+def sleep_bout_lengths(config):
+
+    sleep_period = config.sleep_period
+    original_bin_size = config.original_bin_size
+    time_start = config.time_start
+    time_end = config.time_end
+
+    df = config.df
+
+    # identify the 40s sleep bouts at each 10s timestamp if there has bee >=4 zero values,
+    # add a 1 in the activity column
+    def sleepscan(a):
+        binsize = int(sleep_period / original_bin_size)
+        ss = a.rolling(binsize).sum()
+        y = ss == 0
+        return y.astype(int)  # if numerical output is required
+    df_sleep = pd.DataFrame(df[config.columns_to_use].apply(sleepscan))
+
+    # Do we want each detector in a seperate file
+    df_results = []
+    for detector in config.columns_to_use:
+        bouts = _boutscan(df_sleep[detector], detector)
+        assert bouts.index.is_monotonic_increasing
+        df_results.append(bouts)
+
+    results: pd.DataFrame = pd.concat(df_results)
+    results.set_index('start', inplace=True)
+    results = results.sort_index()
+    assert results.index.is_monotonic_increasing
+    outpath = join(config.outdir, 'sleep_bout_lengths.csv')
+    results.to_csv(outpath)
+
+    sleep_bount_bins_by_pir(config, results)
+    mean_sleep_bouts_per_bin_per_pir(config, df_sleep)
 
 
-def boutscan(series, id_):
+def _boutscan(series, id_):
     """
     Get sleep bout information.
     Parameters
@@ -62,35 +78,24 @@ def boutscan(series, id_):
     bouts_df['id'] = id_
     return bouts_df
 
-df = config.df
-
-# identify the 40s sleep bouts at each 10s timestamp if there has bee >=4 zero values,
-# add a 1 in the activity column
-df_sleep = pd.DataFrame(df[columns_to_use].apply(sleepscan))
-
-# Do we want each detector in a seperate file
-df_results = []
-for detector in columns_to_use:
-    bouts = boutscan(df_sleep[detector], detector)
-    assert bouts.index.is_monotonic_increasing
-    df_results.append(bouts)
-results: pd.DataFrame = pd.concat(df_results)
-results.set_index('start', inplace=True)
-results = results.sort_index()
-assert results.index.is_monotonic_increasing
-outpath = join(config.outdir, 'sleep_bout_lengths.csv')
-results.to_csv(outpath)
-
-
-# Make csv files. Each covering a stretch of 12hours, showing counts of sleep bount bins against PIR
-
-
-# New request from Gareth
-# split into 12 hour bins
-# make a pivot table such that rows are PIRs, columns are bins. and values are counts
-# results is a df with each sleep bout over 40 seconds giving PIR id and =bout duration
 
 def make_csv_of_sleep_bout_bins_by_pir(df, time, outdir):
+    """
+    # Make csv files. Each covering a stretch of 12hours, showing counts of sleep bount bins against PIR
+    # New request from Gareth
+    # split into 12 hour bins
+    # make a pivot table such that rows are PIRs, columns are bins. and values are counts
+    # results is a df with each sleep bout over 40 seconds giving PIR id and =bout duration
+    Parameters
+    ----------
+    df
+    time
+    outdir
+
+    Returns
+    -------
+
+    """
     bin_results = OrderedDict()
     df_less_than_5_mins = df[df.duration < pd.Timedelta(minutes=5)]
     bin_results['0-5'] = df_less_than_5_mins.groupby('id').size()
@@ -118,13 +123,14 @@ def make_csv_of_sleep_bout_bins_by_pir(df, time, outdir):
     df_bin_results.to_csv(bin_results_out)
 
 
-def sleep_bount_bins_by_pir():
+def sleep_bount_bins_by_pir(config, results):
     """
+    TODO: doc what results is
     Split the data into 12 hour chunks and create a csv of sleep bout counts per bins per PIR
     
     Example output
     --------------
-        ,0-5,5-10,10-15,15-20,20-25,25-30,30-35,35-40,40-45,45-50,50-55,55-60,>1hr
+    ,0-5,5-10,10-15,15-20,20-25,25-30,30-35,35-40,40-45,45-50,50-55,55-60,>1hr
     PIR1,62,7,2,4.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
     PIR2,57,12,4,3.0,0.0,1.0,0.0,1.0,0.0,0.0,0.0,0.0,2.0
     PIR3,51,5,2,0.0,2.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
@@ -156,7 +162,7 @@ def sleep_bount_bins_by_pir():
         d += delta
 
 
-def mean_sleep_bouts_per_bin_per_pir():
+def mean_sleep_bouts_per_bin_per_pir(config, df_sleep):
     """
     Creates a csv of mean sleep bout length per time bin per pir
     
@@ -191,8 +197,8 @@ def mean_sleep_bouts_per_bin_per_pir():
         bouts_results = []  # the bout start and duration per PIR
         sleep_bin_chunk = df_sleep.ix[dt1: dt2]
 
-        for detector in columns_to_use:
-            bouts = boutscan(sleep_bin_chunk[detector], detector)
+        for detector in config.columns_to_use:
+            bouts = _boutscan(sleep_bin_chunk[detector], detector)
             bouts_results.append(bouts)
 
         bouts_df = pd.concat(bouts_results)
@@ -229,5 +235,6 @@ def mean_sleep_bouts_per_bin_per_pir():
 
 
 if __name__ == '__main__':
+    # Todo fix CLI
     sleep_bount_bins_by_pir()
     mean_sleep_bouts_per_bin_per_pir()

@@ -1,9 +1,8 @@
 import pandas as pd
-import settings as config
 from os.path import join
 
 
-def bining():
+def binning(config):
     time_start = config.time_start
     time_end = config.time_end
 
@@ -28,4 +27,4 @@ def bining():
     resampled_df.to_csv(outpath)
 
 if __name__ == '__main__':
-    bining()
+    binning()
