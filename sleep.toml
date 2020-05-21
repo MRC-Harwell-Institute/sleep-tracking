@@ -30,4 +30,4 @@ sleep_counting_bin_size_mins = 30
 
 # Which columns (detectors) to analyse
 #columns_to_use = ['PIR1', 'PIR2', 'PIR3', 'PIR4', 'PIR5']
-columns_to_use = ['PIR1']
+columns_to_use = ['PIR1', 'PIR2']

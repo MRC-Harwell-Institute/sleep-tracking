@@ -14,15 +14,15 @@ from scripts.sleep_counting import sleep_counting
 from scripts.binning import binning
 from scripts.cum_sleep_bout_figure import cum_sleep_bouts_fig
 from scripts.sleep_bout_lengths import sleep_bout_lengths
-from scripts.cfg_load import load_config
+# from scripts.cfg_load import load_config
 
-config_path = sys.argv[1]
+# config_path = sys.argv[1]
 
-config = load_config(config_path)
+# config = load_config(config_path)
 
 # binning(config)
 #
-sleep_counting(config)
+sleep_counting('')
 #
 # sleep_bout_lengths(config)
 #
