@@ -2,18 +2,17 @@ import pandas as pd
 import seaborn as sns
 from collections import OrderedDict
 import numpy as np
-sns.set(style="white")
-sns.set_context("poster")
 from os.path import join
 import os
+
+sns.set(style="white")
+sns.set_context("poster")
 
 
 def sleep_bout_lengths(config):
 
     sleep_period = config.sleep_period
     original_bin_size = config.original_bin_size
-    time_start = config.time_start
-    time_end = config.time_end
 
     df = config.df
 
@@ -195,7 +194,7 @@ def mean_sleep_bouts_per_bin_per_pir(config, df_sleep):
 
         # Do we want each detector in a seperate file
         bouts_results = []  # the bout start and duration per PIR
-        sleep_bin_chunk = df_sleep.ix[dt1: dt2]
+        sleep_bin_chunk = df_sleep.loc[dt1: dt2]
 
         for detector in config.columns_to_use:
             bouts = _boutscan(sleep_bin_chunk[detector], detector)

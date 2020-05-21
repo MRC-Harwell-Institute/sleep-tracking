@@ -3,12 +3,6 @@ from os.path import join
 
 
 def binning(config):
-    time_start = config.time_start
-    time_end = config.time_end
-
-
-    # read in the time series data
-    df = pd.read_csv(config.data_abs_path, index_col=False)
 
     df = config.df
 

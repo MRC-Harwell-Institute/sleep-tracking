@@ -8,7 +8,7 @@ sns.set(style="white")
 sns.set_context("poster")
 
 
-def plot_sleep(df, name):
+def plot_sleep(df, name, outdir):
     fig, ax1 = plt.subplots()
     # Plot 1 month of data, showing activity, dark period of each day and periods of immobility scored as sleep (downward deflection)
 
@@ -19,7 +19,7 @@ def plot_sleep(df, name):
     ax1.set_yticks([])
     ax1.set_xticklabels([])
     ax1.set_frame_on(0)
-    figoutdir = join(config.outdir, 'sleep_figures')
+    figoutdir = join(outdir, 'sleep_figures')
     if not os.path.exists(figoutdir):
         os.mkdir(figoutdir)
     outpath = join(figoutdir, name + '_.png')
@@ -36,18 +36,17 @@ def sleep_count(val):
 sleep_count.count = 0  # static variable
 
 
-def sleepscan(a):
-    bins = int(config.sleep_period / config.original_bin_size)
-    ss = a.rolling(bins).sum()
-    y = ss == 0
-    return y.astype(int)  # if numerical output is required
+def run(config):
 
-
-def run():
+    def sleepscan(a):
+        bins = int(config.sleep_period / config.original_bin_size)
+        ss = a.rolling(bins).sum()
+        y = ss == 0
+        return y.astype(int)  # if numerical output is required
 
     df = config.df
 
-    # identify the 40s sleep bouts at each 10s timestam if there has bee >=4 zero values,
+    # identify the 40s sleep bouts at each 10s timestamp if there has bee >=4 zero values,
     # add a 1 in the activity column
     df[config.columns_to_use].apply(sleepscan)
 
@@ -62,6 +61,6 @@ def run():
 
         new_df = pd.DataFrame.from_dict({'activity': activity, 'sleep': sleep, 'LDR': df.LDR})
 
-        plot_sleep(new_df, detector)
+        plot_sleep(new_df, detector, config.outdir)
 
     print('finished')

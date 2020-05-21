@@ -16,15 +16,7 @@ data_path = r'/home/neil/git/sleep-tracking/data/PIR_example_data.csv'
 
 # data_path = r'/home/neil/bit/External_work/Gareth/Gareth_PIR/test_data/160616_1423_Circa_13_comma_removed.csv'
 # The bin size of the input data
-original_bin_size = 5
 
-new_bin_size_mins = 1
-
-
-# What minimally defines a sleep bout in seconds
-sleep_period = 40
-
-time_bin_for_mean_sleep_bout_calculation_mins = 30
 
 # The range of time to analyze. Below is one day example
 time_start = pd.to_datetime("2017-03-16 11:00:00").tz_localize('UTC')
