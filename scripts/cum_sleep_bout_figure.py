@@ -1,3 +1,8 @@
+#! /usr/bin/env python3
+
+import sys
+import toml
+from addict import Dict
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -8,7 +13,7 @@ sns.set(style="white")
 sns.set_context("poster")
 
 
-def plot_sleep(df, name, outdir):
+def _plot_sleep(df, name, outdir):
     fig, ax1 = plt.subplots()
     # Plot 1 month of data, showing activity, dark period of each day and periods of immobility scored as sleep (downward deflection)
 
@@ -26,17 +31,17 @@ def plot_sleep(df, name, outdir):
     fig.savefig(outpath)
 
 
-def sleep_count(val):
+def _sleep_count(val):
     if val == 0:
-        sleep_count.count = 0
+        _sleep_count.count = 0
     elif val == 1:
-        sleep_count.count += 1
-    return sleep_count.count
+        _sleep_count.count += 1
+    return _sleep_count.count
 
-sleep_count.count = 0  # static variable
+_sleep_count.count = 0  # static variable. TODO: what is this doing here?
 
 
-def run(config):
+def cum_sleep_bouts_fig(config):
 
     def sleepscan(a):
         bins = int(config.sleep_period / config.original_bin_size)
@@ -52,15 +57,19 @@ def run(config):
 
     df_sleep = pd.DataFrame(df[config.columns_to_use].apply(sleepscan))
 
-    df_cum_sleep = df_sleep.applymap(sleep_count)
+    df_cum_sleep = df_sleep.applymap(_sleep_count)
 
     for detector in config.columns_to_use:
         sleep = 0 - (df_cum_sleep[detector] / df_cum_sleep[detector].max())
 
         activity = (df[detector] / df[detector].max())
 
+        # TODO: What is no LDR column?
         new_df = pd.DataFrame.from_dict({'activity': activity, 'sleep': sleep, 'LDR': df.LDR})
 
-        plot_sleep(new_df, detector, config.outdir)
+        _plot_sleep(new_df, detector, config.outdir)
 
-    print('finished')
+
+if __name__ == '__main__':
+    config = Dict(toml.load(sys.argv[1]))
+    cum_sleep_bouts_fig(config)

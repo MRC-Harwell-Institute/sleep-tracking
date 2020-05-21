@@ -1,15 +1,33 @@
 # An example config file for running the sleep scripts
 # All paths should be relative to this file
 
+# Where to put the results
 outdir = 'data/output/'
+
+# The input data from the detectors. Path should be relative to this config files
 data_path = 'data/PIR_example_data.csv'
-time_start = "2017-03-16 11:00:00"
-time_end = "2017-03-23 11:00:00"
-#
-original_bin_size = 5
+
+# The start time and end time of the desired range to be analysed
+#time_start = "2017-03-16 14:00:00"
+#time_end = "2017-03-16 14:30:00"
+
+time_start = "2017-03-16 14:00:00"
+time_end = "2017-03-20 14:30:00"
+
+# The original time bins
+original_bin_size = 10
 #
 new_bin_size_mins = 1
+
 # What minimally defines a sleep bout in seconds
 sleep_period = 40
+
+# Used for binning sleep bouts in sleep_bout_lengths.py to
 time_bin_for_mean_sleep_bout_calculation_mins = 30
-columns_to_use = ['PIR1', 'PIR2', 'PIR3', 'PIR4', 'PIR5']
+
+# The bin size used in sleep_counting.py
+sleep_counting_bin_size_mins = 30
+
+# Which columns (detectors) to analyse
+#columns_to_use = ['PIR1', 'PIR2', 'PIR3', 'PIR4', 'PIR5']
+columns_to_use = ['PIR1']

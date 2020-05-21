@@ -1,5 +1,8 @@
-import pandas as pd
-from os.path import join
+#! /usr/bin/env python3
+
+import sys
+import toml
+from addict import Dict
 
 
 def binning(config):
@@ -20,5 +23,7 @@ def binning(config):
 
     resampled_df.to_csv(outpath)
 
+
 if __name__ == '__main__':
-    binning()
+    config = Dict(toml.load(sys.argv[1]))
+    binning(config)

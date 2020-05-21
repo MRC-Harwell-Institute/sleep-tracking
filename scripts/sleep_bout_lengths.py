@@ -1,4 +1,9 @@
+#! /usr/bin/env python3
+
 import pandas as pd
+import sys
+import toml
+from addict import Dict
 import seaborn as sns
 from collections import OrderedDict
 import numpy as np
@@ -234,6 +239,6 @@ def mean_sleep_bouts_per_bin_per_pir(config, df_sleep):
 
 
 if __name__ == '__main__':
-    # Todo fix CLI
-    sleep_bount_bins_by_pir()
-    mean_sleep_bouts_per_bin_per_pir()
+    config = Dict(toml.load(sys.argv[1]))
+    sleep_bount_bins_by_pir(config)
+    mean_sleep_bouts_per_bin_per_pir(config)
